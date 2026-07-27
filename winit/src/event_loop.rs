@@ -117,61 +117,12 @@ impl EventLoop {
     pub fn builder() -> EventLoopBuilder {
         EventLoopBuilder { platform_specific: Default::default() }
     }
+}
 
+impl EventLoopProvider for EventLoop {
     /// Run the event loop with the given application on the calling thread.
     ///
-    /// The `app` is dropped when the event loop is shut down.
-    ///
-    /// ## Event loop flow
-    ///
-    /// This function internally handles the different parts of a traditional event-handling loop.
-    /// You can imagine this method as being implemented like this:
-    ///
-    /// ```rust,ignore
-    /// let mut start_cause = StartCause::Init;
-    ///
-    /// // Run the event loop.
-    /// while !event_loop.exiting() {
-    ///     // Wake up.
-    ///     app.new_events(event_loop, start_cause);
-    ///
-    ///     // Indicate that surfaces can now safely be created.
-    ///     if start_cause == StartCause::Init {
-    ///         app.can_create_surfaces(event_loop);
-    ///     }
-    ///
-    ///     // Handle proxy wake-up event.
-    ///     if event_loop.proxy_wake_up_set() {
-    ///         event_loop.proxy_wake_up_clear();
-    ///         app.proxy_wake_up(event_loop);
-    ///     }
-    ///
-    ///     // Handle actions done by the user / system such as moving the cursor, resizing the
-    ///     // window, changing the window theme, etc.
-    ///     for event in event_loop.events() {
-    ///         match event {
-    ///             window event => app.window_event(event_loop, window_id, event),
-    ///             device event => app.device_event(event_loop, device_id, event),
-    ///         }
-    ///     }
-    ///
-    ///     // Handle redraws.
-    ///     for window_id in event_loop.pending_redraws() {
-    ///         app.window_event(event_loop, window_id, WindowEvent::RedrawRequested);
-    ///     }
-    ///
-    ///     // Done handling events, wait until we're woken up again.
-    ///     app.about_to_wait(event_loop);
-    ///     start_cause = event_loop.wait_if_necessary();
-    /// }
-    ///
-    /// // Finished running, drop application state.
-    /// drop(app);
-    /// ```
-    ///
-    /// This is of course a very coarse-grained overview, and leaves out timing details like
-    /// [`ControlFlow::WaitUntil`] and life-cycle methods like [`ApplicationHandler::resumed`], but
-    /// it should give you an idea of how things fit together.
+    /// For details see [`EventLoopProvider`].
     ///
     /// ## Returns
     ///
@@ -200,6 +151,7 @@ impl EventLoop {
     /// [`run_app_on_demand`]: crate::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand
     /// [`run_app_never_return`]: crate::event_loop::never_return::EventLoopExtNeverReturn::run_app_never_return
     /// [`register_app`]: crate::event_loop::register::EventLoopExtRegister::register_app
+    /// [`EventLoopProvider`]: winit_core::event_loop::EventLoopProvider
     ///
     /// ## Static
     ///
@@ -214,7 +166,7 @@ impl EventLoop {
     /// (though note that this is not available on iOS and web).
     #[inline]
     #[allow(unused_mut)]
-    pub fn run_app<A: ApplicationHandler + 'static>(
+    fn run_app<A: ApplicationHandler + 'static>(
         mut self,
         mut app: A,
     ) -> Result<(), EventLoopError> {
@@ -245,14 +197,14 @@ impl EventLoop {
 
     /// Creates an [`EventLoopProxy`] that can be used to dispatch user events
     /// to the main event loop, possibly from another thread.
-    pub fn create_proxy(&self) -> EventLoopProxy {
+    fn create_proxy(&self) -> EventLoopProxy {
         self.event_loop.window_target().create_proxy()
     }
 
     /// Gets a persistent reference to the underlying platform display.
     ///
     /// See the [`OwnedDisplayHandle`] type for more information.
-    pub fn owned_display_handle(&self) -> OwnedDisplayHandle {
+    fn owned_display_handle(&self) -> OwnedDisplayHandle {
         self.event_loop.window_target().owned_display_handle()
     }
 
@@ -261,7 +213,7 @@ impl EventLoop {
     /// See [`ActiveEventLoop::listen_device_events`] for details.
     ///
     /// [`DeviceEvent`]: crate::event::DeviceEvent
-    pub fn listen_device_events(&self, allowed: DeviceEvents) {
+    fn listen_device_events(&self, allowed: DeviceEvents) {
         let _entered = tracing::debug_span!(
             "winit::EventLoop::listen_device_events",
             allowed = ?allowed
@@ -271,7 +223,7 @@ impl EventLoop {
     }
 
     /// Sets the [`ControlFlow`].
-    pub fn set_control_flow(&self, control_flow: ControlFlow) {
+    fn set_control_flow(&self, control_flow: ControlFlow) {
         self.event_loop.window_target().set_control_flow(control_flow);
     }
 
@@ -280,7 +232,7 @@ impl EventLoop {
     /// ## Platform-specific
     ///
     /// **iOS / Android / Orbital:** Unsupported.
-    pub fn create_custom_cursor(
+    fn create_custom_cursor(
         &self,
         custom_cursor: CustomCursorSource,
     ) -> Result<CustomCursor, RequestError> {

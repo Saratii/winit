@@ -6,7 +6,7 @@ use softbuffer::{Context, Surface};
 use tracing::info;
 use winit::application::ApplicationHandler;
 use winit::event::WindowEvent;
-use winit::event_loop::{ActiveEventLoop, EventLoop, OwnedDisplayHandle};
+use winit::event_loop::{ActiveEventLoop, EventLoop, EventLoopProvider, OwnedDisplayHandle};
 #[cfg(web_platform)]
 use winit::platform::web::WindowAttributesWeb;
 use winit::window::{Window, WindowAttributes, WindowId};

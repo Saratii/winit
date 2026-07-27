@@ -24,7 +24,7 @@ use winit::cursor::{Cursor, CustomCursor, CustomCursorSource};
 use winit::dpi::{LogicalSize, PhysicalPosition, PhysicalSize};
 use winit::error::RequestError;
 use winit::event::{DeviceEvent, DeviceId, MouseButton, MouseScrollDelta, WindowEvent};
-use winit::event_loop::{ActiveEventLoop, EventLoop, OwnedDisplayHandle};
+use winit::event_loop::{ActiveEventLoop, EventLoop, EventLoopProvider, OwnedDisplayHandle};
 use winit::icon::{Icon, RgbaIcon};
 use winit::keyboard::{Key, ModifiersState};
 use winit::monitor::Fullscreen;

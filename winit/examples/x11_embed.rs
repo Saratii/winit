@@ -6,7 +6,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     use softbuffer::{Context, Surface};
     use winit::application::ApplicationHandler;
     use winit::event::WindowEvent;
-    use winit::event_loop::{ActiveEventLoop, EventLoop, OwnedDisplayHandle};
+    use winit::event_loop::{ActiveEventLoop, EventLoop, EventLoopProvider, OwnedDisplayHandle};
     use winit::platform::x11::WindowAttributesX11;
     use winit::window::{Window, WindowAttributes, WindowId};
 
